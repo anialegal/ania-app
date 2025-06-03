@@ -9,3 +9,4 @@ dist/
 
 # Docker artefacts
 **/*.log
+frontend/awscliv2.zip
