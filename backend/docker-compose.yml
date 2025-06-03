@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  admin:
+    build:
+      context: ./admin
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./common:/app/common
+    env_file:
+      - .env
+
+  crm:
+    build:
+      context: ./crm
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./common:/app/common
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ania
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: ania_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+
