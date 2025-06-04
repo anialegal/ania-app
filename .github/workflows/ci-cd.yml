@@ -39,10 +39,8 @@ jobs:
       - name: Install backend dependencies
         working-directory: backend
         run: |
-          # Evita que Poetry cree un virtualenv adicional dentro del runner
           poetry config virtualenvs.create false
-          # Instala solo las dependencias de producción definidas en pyproject.toml
-          poetry install --no-dev --no-interaction
+          poetry install --only main --no-interaction
 
       ########################################################################
       # 5) Ejecutar tests del backend
