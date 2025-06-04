@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase, Session
 from sqlalchemy.sql.expression import Delete, Insert, Update
 
-from core.config import config
+from modules.shared.core.config import config
 
 session_context: ContextVar[str] = ContextVar("session_context")
 
