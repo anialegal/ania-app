@@ -2,8 +2,8 @@ from typing import TypeVar, Type, Generic
 
 from sqlalchemy import select, update, delete
 
-from core.db.session import Base, session
-from core.repository.enum import SynchronizeSessionEnum
+from modules.shared.core.db.session import Base, session
+from modules.shared.core.repository.enum import SynchronizeSessionEnum
 
 ModelType = TypeVar("ModelType", bound=Base)
 

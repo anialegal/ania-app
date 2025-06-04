@@ -1,6 +1,6 @@
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine
-from core.config import config
+from modules.shared.core.config import config
 
 engine = create_async_engine(config.DATABASE_URL, echo=True)
 

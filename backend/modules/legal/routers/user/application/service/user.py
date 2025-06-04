@@ -9,8 +9,8 @@ from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User, UserRead
 from app.user.domain.usecase.user import UserUseCase
 from app.user.domain.vo.location import Location
-from core.db import Transactional
-from core.helpers.token import TokenHelper
+from modules.shared.core.db import Transactional
+from modules.shared.core.helpers.token import TokenHelper
 
 
 class UserService(UserUseCase):

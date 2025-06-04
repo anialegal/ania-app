@@ -25,8 +25,8 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 
 # For auto generate schemas
-from core.config import config
-from core.db import Base
+from modules.shared.core.config import config
+from modules.shared.core.db import Base
 
 target_metadata = Base.metadata
 

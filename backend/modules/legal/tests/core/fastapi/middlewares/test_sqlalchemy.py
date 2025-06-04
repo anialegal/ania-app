@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from core.fastapi.middlewares import SQLAlchemyMiddleware
-from core.fastapi.middlewares import sqlalchemy
+from modules.shared.core.fastapi.middlewares import SQLAlchemyMiddleware
+from modules.shared.core.fastapi.middlewares import sqlalchemy
 from starlette.types import Receive, Scope, Send
 
 

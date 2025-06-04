@@ -9,6 +9,7 @@ from modules.shared.core.db.session import (
     reset_session_context,
     session as db_session,
 )
+
 from tests.support.test_db_coordinator import TestDbCoordinator
 
 test_db_coordinator = TestDbCoordinator()
@@ -35,3 +36,4 @@ async def session():
     yield db_session
     await db_session.remove()
     test_db_coordinator.truncate_all()
+

@@ -9,7 +9,7 @@ from starlette import status
 
 from app.container import Container
 from app.user.domain.usecase.user import UserUseCase
-from core.exceptions import CustomException
+from modules.shared.core.exceptions import CustomException
 
 
 class UnauthorizedException(CustomException):

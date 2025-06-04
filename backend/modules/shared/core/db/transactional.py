@@ -1,6 +1,6 @@
 from functools import wraps
 
-from core.db import session
+from modules.shared.core.db.session import session
 
 
 class Transactional:

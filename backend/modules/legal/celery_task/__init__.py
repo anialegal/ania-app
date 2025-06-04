@@ -1,5 +1,5 @@
 from celery import Celery
-from core.config import config
+from modules.shared.core.config import config
 
 
 celery_app = Celery(

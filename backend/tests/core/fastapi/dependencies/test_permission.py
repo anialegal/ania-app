@@ -4,13 +4,13 @@ import pytest
 from fastapi import Request
 
 from app.container import Container
-from core.fastapi.dependencies import (
+from modules.shared.core.fastapi.dependencies import (
     AllowAll,
     IsAdmin,
     IsAuthenticated,
     PermissionDependency,
 )
-from core.fastapi.dependencies.permission import UnauthorizedException
+from modules.shared.core.fastapi.dependencies.permission import UnauthorizedException
 
 container = Container()
 

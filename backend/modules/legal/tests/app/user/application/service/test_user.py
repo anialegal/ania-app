@@ -11,7 +11,7 @@ from app.user.application.exception import (
 from app.user.application.service.user import UserService
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import UserRead
-from core.helpers.token import TokenHelper
+from modules.shared.core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user
 
 repository_mock = AsyncMock(spec=UserRepositoryAdapter)

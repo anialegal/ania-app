@@ -3,8 +3,8 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, composite
 
 from app.user.domain.vo.location import Location
-from core.db import Base
-from core.db.mixins import TimestampMixin
+from modules.shared.core.db import Base
+from modules.shared.core.db.mixins import TimestampMixin
 
 
 class User(Base, TimestampMixin):

@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 
-from core.db.session import (
+from modules.shared.core.db.session import (
     set_session_context,
     reset_session_context,
     session as db_session,

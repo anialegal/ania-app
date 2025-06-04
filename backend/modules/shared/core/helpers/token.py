@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from core.config import config
-from core.exceptions import CustomException
+from modules.shared.core.config import config
+from modules.shared.core.exceptions import CustomException
 
 
 class DecodeTokenException(CustomException):

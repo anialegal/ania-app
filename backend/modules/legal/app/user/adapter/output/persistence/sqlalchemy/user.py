@@ -2,7 +2,7 @@ from sqlalchemy import and_, or_, select
 
 from app.user.domain.entity.user import User
 from app.user.domain.repository.user import UserRepo
-from core.db.session import session, session_factory
+from modules.shared.core.db.session import session, session_factory
 
 
 class UserSQLAlchemyRepo(UserRepo):

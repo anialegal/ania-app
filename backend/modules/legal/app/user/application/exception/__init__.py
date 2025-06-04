@@ -1,4 +1,4 @@
-from core.exceptions import CustomException
+from modules.shared.core.exceptions import CustomException
 
 
 class PasswordDoesNotMatchException(CustomException):

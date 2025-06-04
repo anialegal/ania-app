@@ -4,8 +4,8 @@ from unittest.mock import Mock, patch
 import pytest
 from jwt.exceptions import PyJWTError
 
-from core.fastapi.middlewares import authentication
-from core.fastapi.middlewares.authentication import AuthBackend, CurrentUser
+from modules.shared.core.fastapi.middlewares import authentication
+from modules.shared.core.fastapi.middlewares.authentication import AuthBackend, CurrentUser
 
 auth_backend = AuthBackend()
 

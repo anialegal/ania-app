@@ -1,7 +1,7 @@
 import pytest
 
-from core.helpers.cache.redis_backend import RedisBackend
-from core.helpers.redis import redis_client
+from modules.shared.core.helpers.cache.redis_backend import RedisBackend
+from modules.shared.core.helpers.redis import redis_client
 
 redis_backend = RedisBackend()
 

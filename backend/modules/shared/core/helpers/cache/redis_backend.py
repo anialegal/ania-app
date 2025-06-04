@@ -3,8 +3,8 @@ from typing import Any
 
 import ujson
 
-from core.helpers.cache.base import BaseBackend
-from core.helpers.redis import redis_client
+from modules.shared.core.helpers.cache.base import BaseBackend
+from modules.shared.core.helpers.redis import redis_client
 
 
 class RedisBackend(BaseBackend):

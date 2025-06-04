@@ -1,7 +1,7 @@
 from app.auth.application.dto import RefreshTokenResponseDTO
 from app.auth.application.exception import DecodeTokenException
 from app.auth.domain.usecase.jwt import JwtUseCase
-from core.helpers.token import (
+from modules.shared.core.helpers.token import (
     TokenHelper,
     DecodeTokenException as JwtDecodeTokenException,
     ExpiredTokenException as JwtExpiredTokenException,

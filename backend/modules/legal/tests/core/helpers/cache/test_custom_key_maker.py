@@ -1,6 +1,6 @@
 import pytest
 
-from core.helpers.cache.custom_key_maker import CustomKeyMaker
+from modules.shared.core.helpers.cache.custom_key_maker import CustomKeyMaker
 
 key_maker = CustomKeyMaker()
 

@@ -6,7 +6,7 @@ from starlette.middleware.authentication import (
 )
 from starlette.requests import HTTPConnection
 
-from core.config import config
+from modules.shared.core.config import config
 
 
 class CurrentUser(BaseModel):

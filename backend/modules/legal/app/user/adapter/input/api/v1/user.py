@@ -7,7 +7,7 @@ from app.user.adapter.input.api.v1.response import LoginResponse
 from app.user.application.dto import CreateUserResponseDTO, GetUserListResponseDTO
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.usecase.user import UserUseCase
-from core.fastapi.dependencies import IsAdmin, PermissionDependency
+from modules.shared.core.fastapi.dependencies import IsAdmin, PermissionDependency
 
 user_router = APIRouter()
 

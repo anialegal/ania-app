@@ -2,7 +2,7 @@ from alembic import command
 from alembic.config import Config as AlembicConfig
 from sqlalchemy import create_engine, inspect, Engine, text
 
-from core.config import config
+from modules.shared.core.config import config
 
 
 class TestDbCoordinator:
