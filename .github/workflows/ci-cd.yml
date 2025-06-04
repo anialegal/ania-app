@@ -1,0 +1,70 @@
+name: CI/CD Pipeline
+
+# Ejecutar al hacer push en la rama main
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2) Configurar Python y dependencias del backend
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-interaction --no-ansi
+
+      - name: Run backend tests
+        working-directory: backend
+        run: |
+          poetry run pytest
+
+      # 3) Construir y publicar imagen Docker del backend en ECR
+      - name: Login to Amazon ECR
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login --username AWS --password-stdin ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build & Push Backend Image
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          docker build -t ania-backend:latest backend
+          docker tag ania-backend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-backend:latest
+          docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-backend:latest
+
+      # 4) Construir y publicar imagen Docker del frontend (Legal) en ECR
+      - name: Build & Push Legal Frontend Image
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          docker build -t ania-legal-frontend:latest frontend/legal
+          docker tag ania-legal-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
+          docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
+
+      # (Opcional) 5) Construir y publicar imagen Docker del frontend (Empresa) en ECR
+      # - name: Build & Push Empresa Frontend Image
+      #   env:
+      #     AWS_REGION: ${{ secrets.AWS_REGION }}
+      #   run: |
+      #     docker build -t ania-empresa-frontend:latest frontend/empresa
+      #     docker tag ania-empresa-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
+      #     docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
+
