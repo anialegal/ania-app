@@ -46,13 +46,11 @@ jobs:
       # 5) Ejecutar tests del backend
       #     Establecemos PYTHONPATH para que pytest encuentre "modules" (core, shared, etc.)
       ########################################################################
-      - name: Run backend tests
-        working-directory: backend
-        env:
-          # github.workspace = /home/runner/work/ania-app/ania-app
-          PYTHONPATH: "${{ github.workspace }}/backend/modules"
-        run: |
-          poetry run pytest
+- name: Run backend tests
+  working-directory: backend
+  run: |
+    export PYTHONPATH="$PWD:$PWD/modules:$PYTHONPATH"
+    poetry run pytest
 
       ########################################################################
       # 6) Login a Amazon ECR para poder hacer push de imágenes
