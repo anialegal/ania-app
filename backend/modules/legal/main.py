@@ -1,34 +1,23 @@
-import os
+# ── backend/modules/legal/main.py ──
+from fastapi import FastAPI
+from modules.core.config import settings
+from modules.shared.billing.router import router as billing_router
+from modules.shared.chat.router   import router as chat_router
+from modules.legal.routers        import router as legal_router
 
-import click
-import uvicorn
+app = FastAPI(title="ANIA Legal")
 
-from core.config import config
+# Configuración global (Base de datos, CORS, JWT, etc.)
+settings.configure_app(app)
 
+# Routers compartidos
+app.include_router(billing_router, prefix="/shared/billing")
+app.include_router(chat_router,     prefix="/shared/chat")
 
-@click.command()
-@click.option(
-    "--env",
-    type=click.Choice(["local", "dev", "prod"], case_sensitive=False),
-    default="local",
-)
-@click.option(
-    "--debug",
-    type=click.BOOL,
-    is_flag=True,
-    default=False,
-)
-def main(env: str, debug: bool):
-    os.environ["ENV"] = env
-    os.environ["DEBUG"] = str(debug)
-    uvicorn.run(
-        app="app.server:app",
-        host=config.APP_HOST,
-        port=config.APP_PORT,
-        reload=True if config.ENV != "production" else False,
-        workers=1,
-    )
+# Routers específicos de Legal
+app.include_router(legal_router, prefix="/legal")
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
-if __name__ == "__main__":
-    main()

@@ -1,8 +1,38 @@
-FROM python:3.12-slim
+# --- ETAPA 1: instalar dependencias ---
+FROM python:3.12-slim AS builder
+
+# Definimos el working dir
 WORKDIR /app
+
+# Copiamos únicamente los archivos de Poetry (o pyproject) para instalar dependencias
+# Nota: asumimos que 'pyproject.toml' y 'poetry.lock' están en 'backend/'
 COPY backend/pyproject.toml backend/poetry.lock /app/
-RUN pip install poetry && poetry install --no-dev --no-interaction
+
+# Instalar Poetry y las dependencias (sin dev‐deps)
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# --- ETAPA 2: copiar el código fuente y preparar la imagen final ---
+FROM python:3.12-slim
+
+# Repetimos WORKDIR para la imagen final
+WORKDIR /app
+
+# Copiamos las dependencias ya instaladas desde el builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+
+# Copiamos el resto del código (backend completo) para que el servidor lo utilice
 COPY backend /app/backend
-ENV PYTHONPATH="/app/backend/modules:${PYTHONPATH}"
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Ajustamos PYTHONPATH para que incluya '/app/backend'
+# De ese modo Python podrá resolver importaciones como "from modules.core.config import ..."
+ENV PYTHONPATH="/app/backend:${PYTHONPATH}"
+
+# Exponemos el puerto que usará Uvicorn
+EXPOSE 8000
+
+# Finalmente, arrancamos Uvicorn apuntando a tu main.py en modules/legal
+# Observa que cambiamos el módulo a "modules.legal.main:app"
+CMD ["uvicorn", "modules.legal.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
