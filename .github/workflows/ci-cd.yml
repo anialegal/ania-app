@@ -1,6 +1,5 @@
 name: build-and-deploy
 
-#  Se dispara en cada push a la rama main
 on:
   push:
     branches:
@@ -11,50 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      ########################################################################
-      # 1) Descargar el código (checkout)
-      ########################################################################
       - name: Checkout code
         uses: actions/checkout@v4
 
-      ########################################################################
-      # 2) Preparar Python 3.12
-      ########################################################################
       - name: Setup Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
 
-      ########################################################################
-      # 3) Instalar Poetry (en root) para luego instalar deps del backend
-      ########################################################################
       - name: Install Poetry
         run: |
           python -m pip install --upgrade pip
           pip install poetry
 
-      ########################################################################
-      # 4) Instalar dependencias del backend con Poetry (sin dev-deps)
-      ########################################################################
       - name: Install backend dependencies
         working-directory: backend
         run: |
           poetry config virtualenvs.create false
           poetry install --only main --no-interaction
 
-      ########################################################################
-      # 5) Ejecutar tests del backend
-      #     Establecemos PYTHONPATH para que pytest encuentre "modules" (core, shared, etc.)
-      ########################################################################
-- name: Run backend tests
-  working-directory: backend
-  run: |
-    export PYTHONPATH="$PWD:$PWD/modules:$PYTHONPATH"
-    poetry run pytest
+      - name: Run backend tests
+        working-directory: backend
+        run: |
+          export PYTHONPATH="$PWD:$PWD/modules:$PYTHONPATH"
+          poetry run pytest
 
-      ########################################################################
-      # 6) Login a Amazon ECR para poder hacer push de imágenes
-      ########################################################################
       - name: Login to Amazon ECR
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -62,62 +42,35 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws ecr get-login-password --region $AWS_REGION \
-            | docker login --username AWS --password-stdin ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com
+          | docker login --username AWS --password-stdin ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com
 
-      ########################################################################
-      # 7) Build & Push Docker image del backend en ECR
-      ########################################################################
       - name: Build & Push Backend Image
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          # 7.1) Construye la imagen del backend (contexto = carpeta `backend`)
           docker build -t ania-backend:latest backend
-
-          # 7.2) Crea el tag para ECR
           docker tag ania-backend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-backend:latest
-
-          # 7.3) Push a ECR
           docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-backend:latest
 
-      ########################################################################
-      # 8) Build & Push Docker image del frontend Legal en ECR
-      ########################################################################
       - name: Build & Push Legal Frontend Image
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          # 8.1) Construye la imagen del frontend Legal (contexto = `frontend/legal`)
           docker build -t ania-legal-frontend:latest frontend/legal
-
-          # 8.2) Tag para ECR
           docker tag ania-legal-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
-
-          # 8.3) Push a ECR
           docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
 
-      ########################################################################
-      # 9) (Opcional) Build & Push Docker image del frontend Empresa en ECR
-      #    Si quieres activar la publicación de `frontend/empresa`, descomenta:
-      ########################################################################
+      # (Opcional) Build & Push Empresa Frontend Image
+      # Si deseas activar esta parte, descomenta lo siguiente:
       # - name: Build & Push Empresa Frontend Image
       #   env:
       #     AWS_REGION: ${{ secrets.AWS_REGION }}
       #   run: |
-      #     # 9.1) Construye la imagen del frontend Empresa (contexto = `frontend/empresa`)
       #     docker build -t ania-empresa-frontend:latest frontend/empresa
-      #
-      #     # 9.2) Tag para ECR
       #     docker tag ania-empresa-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
-      #
-      #     # 9.3) Push a ECR
       #     docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
 
-      ########################################################################
-      # 10) (Opcional) Notificación de éxito, Slack, etc.
-      #     Si deseas, puedes descomentar para notificar al final:
-      ########################################################################
+      # (Opcional) Notificación de éxito
       # - name: Notify Success
-      #   run: |
-      #     echo "🚀 Build and Deploy completed successfully!"
+      #   run: echo "✅ Build and Deploy completed successfully!"
 
