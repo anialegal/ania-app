@@ -23,5 +23,14 @@ class Settings(BaseSettings):
         else:
             raise ValueError("Entorno no reconocido")
 
+    @property
+    def READER_DB_URL(self):
+        if self.ENV == "empresa":
+            return self.DATABASE_URL_EMPRESA
+        elif self.ENV == "legal":
+            return self.DATABASE_URL_LEGAL
+        else:
+            raise ValueError("Entorno no reconocido")
+
 config = Settings()
 
