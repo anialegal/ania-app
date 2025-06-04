@@ -14,6 +14,8 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://ania_user:Anialega125!@ania-db-legal-dev.cnksmeq80uqz.eu-west-2.rds.amazonaws.com:5432/ania_legal_dev",
     )
 
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
+
     @property
     def WRITER_DB_URL(self):
         if self.ENV == "empresa":
@@ -31,6 +33,7 @@ class Settings(BaseSettings):
             return self.DATABASE_URL_LEGAL
         else:
             raise ValueError("Entorno no reconocido")
+
 
 config = Settings()
 
