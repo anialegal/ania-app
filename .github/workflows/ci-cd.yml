@@ -60,17 +60,3 @@ jobs:
           docker tag ania-legal-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
           docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-legal-frontend:latest
 
-      # (Opcional) Build & Push Empresa Frontend Image
-      # Si deseas activar esta parte, descomenta lo siguiente:
-      # - name: Build & Push Empresa Frontend Image
-      #   env:
-      #     AWS_REGION: ${{ secrets.AWS_REGION }}
-      #   run: |
-      #     docker build -t ania-empresa-frontend:latest frontend/empresa
-      #     docker tag ania-empresa-frontend:latest ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
-      #     docker push ${{ secrets.ID_AWS }}.dkr.ecr.$AWS_REGION.amazonaws.com/ania-empresa-frontend:latest
-
-      # (Opcional) Notificación de éxito
-      # - name: Notify Success
-      #   run: echo "✅ Build and Deploy completed successfully!"
-
