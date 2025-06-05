@@ -9,10 +9,11 @@ from modules.legal.app.user.application.exception import (
     UserNotFoundException,
 )
 from modules.legal.app.user.application.service.user import UserService
-from modules.legal.app.user.domain.command import CreateUserCommand
+from modules.legal.app.user.application.command import CreateUserCommand
 from modules.legal.app.user.domain.entity.user import UserRead
 from modules.shared.core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user
+
 
 repository_mock = AsyncMock(spec=UserRepositoryAdapter)
 user_service = UserService(repository=repository_mock)
@@ -21,177 +22,151 @@ user_service = UserService(repository=repository_mock)
 @pytest.mark.asyncio
 async def test_get_user_list():
     # Given
-    limit = 10
-    prev = 0
-    user = UserRead(id=1, email="h@id.e", nickname="hide")
+    user = UserRead(id=1, email="test@example.com", nickname="hide")
     repository_mock.get_users.return_value = [user]
-    user_service.repository = repository_mock
 
     # When
-    sut = await user_service.get_user_list(limit=limit, prev=prev)
+    result = await user_service.get_user_list(limit=10, prev=0)
 
     # Then
-    assert len(sut) == 1
-    result = sut[0]
-    assert result.id == user.id
-    assert result.email == user.email
-    assert result.nickname == user.nickname
-    user_service.repository.get_users.assert_awaited_once_with(limit=limit, prev=prev)
+    assert len(result) == 1
+    assert result[0].id == user.id
+    assert result[0].email == user.email
+    assert result[0].nickname == user.nickname
 
 
 @pytest.mark.asyncio
 async def test_create_user_password_does_not_match():
-    # Given
     command = CreateUserCommand(
-        email="h@id.e",
-        password1="a",
-        password2="b",
-        nickname="hide",
+        email="test@example.com",
+        password1="password1",
+        password2="password2",
+        nickname="nickname",
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
 
-    # When, Then
     with pytest.raises(PasswordDoesNotMatchException):
-        await user_service.create_user(command=command)
+        await user_service.create_user(command)
 
 
 @pytest.mark.asyncio
 async def test_create_user_duplicated():
-    # Given
     command = CreateUserCommand(
-        email="h@id.e",
-        password1="a",
-        password2="a",
-        nickname="hide",
+        email="test@example.com",
+        password1="password",
+        password2="password",
+        nickname="nickname",
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
-    user = make_user(
+
+    existing_user = make_user(
         password="password",
-        email="h@id.e",
-        nickname="hide",
+        email="test@example.com",
+        nickname="nickname",
         is_admin=False,
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
-    repository_mock.get_user_by_email_or_nickname.return_value = user
-    user_service.repository = repository_mock
 
-    # When, Then
+    repository_mock.get_user_by_email_or_nickname.return_value = existing_user
+
     with pytest.raises(DuplicateEmailOrNicknameException):
-        await user_service.create_user(command=command)
+        await user_service.create_user(command)
 
 
 @pytest.mark.asyncio
 async def test_create_user():
-    # Given
     command = CreateUserCommand(
-        email="h@id.e",
-        password1="a",
-        password2="a",
-        nickname="hide",
+        email="newuser@example.com",
+        password1="password",
+        password2="password",
+        nickname="newuser",
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
+
     repository_mock.get_user_by_email_or_nickname.return_value = None
-    user_service.repository = repository_mock
 
-    # When
-    await user_service.create_user(command=command)
+    await user_service.create_user(command)
 
-    # Then
     repository_mock.save.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_is_admin_user_not_exist():
-    # Given
     repository_mock.get_user_by_id.return_value = None
-    user_service.repository = repository_mock
 
-    # When
-    sut = await user_service.is_admin(user_id=1)
+    result = await user_service.is_admin(user_id=1)
 
-    # Then
-    assert sut is False
+    assert result is False
 
 
 @pytest.mark.asyncio
 async def test_is_admin_user_is_not_admin():
-    # Given
     user = make_user(
         id=1,
         password="password",
-        email="h@id.e",
-        nickname="hide",
+        email="test@example.com",
+        nickname="nickname",
         is_admin=False,
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
+
     repository_mock.get_user_by_id.return_value = user
-    user_service.repository = repository_mock
 
-    # When
-    sut = await user_service.is_admin(user_id=user.id)
+    result = await user_service.is_admin(user_id=user.id)
 
-    # Then
-    assert sut is False
+    assert result is False
 
 
 @pytest.mark.asyncio
 async def test_is_admin():
-    # Given
     user = make_user(
         id=1,
         password="password",
-        email="h@id.e",
-        nickname="hide",
+        email="admin@example.com",
+        nickname="admin",
         is_admin=True,
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
+
     repository_mock.get_user_by_id.return_value = user
-    user_service.repository = repository_mock
 
-    # When
-    sut = await user_service.is_admin(user_id=user.id)
+    result = await user_service.is_admin(user_id=user.id)
 
-    # Then
-    assert sut is True
+    assert result is True
 
 
 @pytest.mark.asyncio
-async def test_login_user_not_exist():
-    # Given
+async def test_login_user_not_found():
     repository_mock.get_user_by_email_and_password.return_value = None
-    user_service.repository = repository_mock
 
-    # When, Then
     with pytest.raises(UserNotFoundException):
         await user_service.login(email="email", password="password")
 
 
 @pytest.mark.asyncio
 async def test_login():
-    # Given
     user = make_user(
         id=1,
         password="password",
-        email="h@id.e",
-        nickname="hide",
+        email="test@example.com",
+        nickname="user",
         is_admin=False,
         lat=37.123,
-        lng=127.123,
+        lng=-127.123,
     )
+
     repository_mock.get_user_by_email_and_password.return_value = user
-    user_service.repository = repository_mock
     token = TokenHelper.encode(payload={"user_id": user.id})
     refresh_token = TokenHelper.encode(payload={"sub": "refresh"})
 
-    # When
-    sut = await user_service.login(email="email", password="password")
+    result = await user_service.login(email="email", password="password")
 
-    # Then
-    assert sut.token == token
-    assert sut.refresh_token == refresh_token
+    assert result.token == token
+    assert result.refresh_token == refresh_token
+

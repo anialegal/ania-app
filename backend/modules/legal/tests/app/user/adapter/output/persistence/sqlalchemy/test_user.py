@@ -1,17 +1,26 @@
 import pytest
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from modules.legal.app.server import app
 from modules.legal.app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
-from modules.legal.app.user.domain.entity.user import User
+from modules.legal.app.user.application.exception import (
+    PasswordDoesNotMatchException,
+    DuplicateEmailOrNicknameException,
+    UserNotFoundException,
+)
+from tests.support.token import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 
-user_repo = UserSQLAlchemyRepo()
+HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
+BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
 async def test_get_users(session: AsyncSession):
     # Given
-    user_1 = make_user(
+    user = make_user(
+        id=1,
         password="password",
         email="a@b.c",
         nickname="hide",
@@ -19,116 +28,139 @@ async def test_get_users(session: AsyncSession):
         lat=37.123,
         lng=127.123,
     )
-    user_2 = make_user(
-        password="password2",
-        email="b@b.c",
-        nickname="test",
-        is_admin=False,
-        lat=37.123,
-        lng=127.123,
-    )
-    session.add_all([user_1, user_2])
+    session.add(user)
     await session.commit()
 
     # When
-    sut = await user_repo.get_users(limit=15, prev=12)
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.get("/api/v1/user", headers=HEADERS)
 
     # Then
-    assert len(sut) == 2
-    saved_user_1 = sut[0]
-    assert saved_user_1.password == user_1.password
-    assert saved_user_1.email == user_1.email
-    assert saved_user_1.nickname == user_1.nickname
-    assert saved_user_1.is_admin == user_1.is_admin
-    assert saved_user_1.location.lat == user_1.location.lat
-    assert saved_user_1.location.lng == user_1.location.lng
-
-    saved_user_2 = sut[1]
-    assert saved_user_2.password == user_2.password
-    assert saved_user_2.email == user_2.email
-    assert saved_user_2.nickname == user_2.nickname
-    assert saved_user_2.is_admin == user_2.is_admin
-    assert saved_user_2.location.lat == user_2.location.lat
-    assert saved_user_2.location.lng == user_2.location.lng
+    sut = response.json()
+    assert len(sut) == 1
+    assert sut[0] == {"id": 1, "email": "a@b.c", "nickname": "hide"}
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_or_nickname(session: AsyncSession):
-    # Given
-    email = "a@b.c"
-    nickname = "hide"
+async def test_create_user_password_does_not_match(session: AsyncSession):
+    body = {
+        "email": "h@id.e",
+        "password1": "a",
+        "password2": "b",
+        "nickname": "hide",
+        "lat": 37.123,
+        "lng": 127.123,
+    }
+
+    exc = PasswordDoesNotMatchException()
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+
+    assert response.json() == {
+        "error_code": exc.error_code,
+        "message": exc.message,
+    }
+
+
+@pytest.mark.asyncio
+async def test_create_user_duplicated_user(session: AsyncSession):
     user = make_user(
-        password="password2",
-        email=email,
-        nickname=nickname,
-        is_admin=False,
+        id=1,
+        password="password",
+        email="a@b.c",
+        nickname="hide",
+        is_admin=True,
         lat=37.123,
         lng=127.123,
     )
     session.add(user)
     await session.commit()
 
-    # When
-    sut = await user_repo.get_user_by_email_or_nickname(email=email, nickname=nickname)
+    body = {
+        "email": "a@b.c",
+        "password1": "a",
+        "password2": "a",
+        "nickname": "hide",
+        "lat": 37.123,
+        "lng": 127.123,
+    }
 
-    # Then
-    assert isinstance(sut, User)
-    assert sut.id == user.id
+    exc = DuplicateEmailOrNicknameException()
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+
+    assert response.json() == {
+        "error_code": exc.error_code,
+        "message": exc.message,
+    }
+
+
+@pytest.mark.asyncio
+async def test_create_user(session: AsyncSession):
+    email = "h@id.e"
+    nickname = "hide"
+    body = {
+        "email": email,
+        "password1": "a",
+        "password2": "a",
+        "nickname": nickname,
+        "lat": 37.123,
+        "lng": 127.123,
+    }
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+
+    assert response.json() == {"email": email, "nickname": nickname}
+
+    user_repo = UserSQLAlchemyRepo()
+    sut = await user_repo.get_user_by_email_or_nickname(nickname=nickname, email=email)
+    assert sut is not None
     assert sut.email == email
     assert sut.nickname == nickname
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_id(session: AsyncSession):
-    # Given
-    user_id = 1
+async def test_login_user_not_found(session: AsyncSession):
+    email = "h@id.e"
+    password = "password"
+    body = {"email": email, "password": password}
 
-    # When
-    sut = await user_repo.get_user_by_id(user_id=user_id)
+    exc = UserNotFoundException()
 
-    # Then
-    assert sut is None
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
+
+    assert response.json() == {
+        "error_code": exc.error_code,
+        "message": exc.message,
+    }
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_and_password(session: AsyncSession):
-    # Given
-    email = "b@c.d"
-    password = "hide"
+async def test_login(session: AsyncSession):
+    email = "h@id.e"
+    password = "password"
     user = make_user(
+        id=1,
         password=password,
         email=email,
         nickname="hide",
-        is_admin=False,
+        is_admin=True,
         lat=37.123,
         lng=127.123,
     )
     session.add(user)
     await session.commit()
 
-    # When
-    sut = await user_repo.get_user_by_email_and_password(email=email, password=password)
+    body = {"email": email, "password": password}
 
-    # Then
-    assert isinstance(sut, User)
-    assert sut.id == user.id
-    assert sut.email == email
-    assert sut.password == password
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
+        response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
 
+    sut = response.json()
+    assert "token" in sut
+    assert "refresh_token" in sut
 
-@pytest.mark.asyncio
-async def test_save(session: AsyncSession):
-    # Given
-    email = "b@c.d"
-    password = "hide"
-    user = make_user(
-        password=password,
-        email=email,
-        nickname="hide",
-        is_admin=False,
-        lat=37.123,
-        lng=127.123,
-    )
-
-    # When, Then
-    await user_repo.save(user=user)

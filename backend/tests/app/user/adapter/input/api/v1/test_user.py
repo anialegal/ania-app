@@ -9,11 +9,11 @@ from modules.legal.app.user.application.exception import (
     DuplicateEmailOrNicknameException,
     UserNotFoundException,
 )
+
 from tests.support.token import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 
 HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
-BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
@@ -52,17 +52,14 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
         "lat": 37.123,
         "lng": 127.123,
     }
-    exc = PasswordDoesNotMatchException
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/api/v1/user", headers=HEADERS, json=body)
 
     # Then
-    assert response.json() == {
-        "error_code": exc.error_code,
-        "message": exc.message,
-    }
+    exc = PasswordDoesNotMatchException
+    assert response.json() == {"error_code": exc.error_code, "message": exc.message}
 
 
 @pytest.mark.asyncio
@@ -88,17 +85,14 @@ async def test_create_user_duplicated_user(session: AsyncSession):
         "lat": 37.123,
         "lng": 127.123,
     }
-    exc = DuplicateEmailOrNicknameException
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/api/v1/user", headers=HEADERS, json=body)
 
     # Then
-    assert response.json() == {
-        "error_code": exc.error_code,
-        "message": exc.message,
-    }
+    exc = DuplicateEmailOrNicknameException
+    assert response.json() == {"error_code": exc.error_code, "message": exc.message}
 
 
 @pytest.mark.asyncio
@@ -132,20 +126,15 @@ async def test_create_user(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_login_user_not_found(session: AsyncSession):
     # Given
-    email = "h@id.e"
-    password = "password"
-    body = {"email": email, "password": password}
-    exc = UserNotFoundException
+    body = {"email": "h@id.e", "password": "password"}
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
 
     # Then
-    assert response.json() == {
-        "error_code": exc.error_code,
-        "message": exc.message,
-    }
+    exc = UserNotFoundException
+    assert response.json() == {"error_code": exc.error_code, "message": exc.message}
 
 
 @pytest.mark.asyncio
@@ -175,3 +164,4 @@ async def test_login(session: AsyncSession):
     sut = response.json()
     assert "token" in sut
     assert "refresh_token" in sut
+

@@ -9,8 +9,9 @@ from modules.legal.app.user.application.exception import (
     DuplicateEmailOrNicknameException,
     UserNotFoundException,
 )
-from tests.support.token import USER_ID_1_TOKEN
-from tests.support.user_fixture import make_user
+
+from modules.legal.tests.support.token import USER_ID_1_TOKEN
+from modules.legal.tests.support.user_fixture import make_user
 
 HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
 BASE_URL = "http://test"
@@ -32,7 +33,7 @@ async def test_get_users(session: AsyncSession):
     await session.commit()
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.get("/api/v1/user", headers=HEADERS)
 
     # Then
@@ -55,7 +56,7 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
     exc = PasswordDoesNotMatchException
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.post("/api/v1/user", headers=HEADERS, json=body)
 
     # Then
@@ -88,10 +89,11 @@ async def test_create_user_duplicated_user(session: AsyncSession):
         "lat": 37.123,
         "lng": 127.123,
     }
+
     exc = DuplicateEmailOrNicknameException
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.post("/api/v1/user", headers=HEADERS, json=body)
 
     # Then
@@ -116,7 +118,7 @@ async def test_create_user(session: AsyncSession):
     }
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.post("/api/v1/user", headers=HEADERS, json=body)
 
     # Then
@@ -138,7 +140,7 @@ async def test_login_user_not_found(session: AsyncSession):
     exc = UserNotFoundException
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
 
     # Then
@@ -168,10 +170,11 @@ async def test_login(session: AsyncSession):
     body = {"email": email, "password": password}
 
     # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url=BASE_URL) as client:
         response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
 
     # Then
     sut = response.json()
     assert "token" in sut
     assert "refresh_token" in sut
+

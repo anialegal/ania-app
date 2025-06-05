@@ -1,0 +1,687 @@
+[1mdiff --git a/backend/migrations/env.py b/backend/migrations/env.py[m
+[1mindex 506a5ba..0ac0b64 100644[m
+[1m--- a/backend/migrations/env.py[m
+[1m+++ b/backend/migrations/env.py[m
+[36m@@ -25,8 +25,8 @@[m [mfileConfig(config.config_file_name)[m
+ # target_metadata = mymodel.Base.metadata[m
+ [m
+ # For auto generate schemas[m
+[31m-from core.config import config[m
+[31m-from core.db import Base[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.db import Base[m
+ [m
+ target_metadata = Base.metadata[m
+ [m
+[1mdiff --git a/backend/modules/legal/app/auth/application/exception/__init__.py b/backend/modules/legal/app/auth/application/exception/__init__.py[m
+[1mindex cf173f5..6f5d30a 100644[m
+[1m--- a/backend/modules/legal/app/auth/application/exception/__init__.py[m
+[1m+++ b/backend/modules/legal/app/auth/application/exception/__init__.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class DecodeTokenException(CustomException):[m
+[1mdiff --git a/backend/modules/legal/app/auth/application/service/jwt.py b/backend/modules/legal/app/auth/application/service/jwt.py[m
+[1mindex 73282fc..b1ab564 100644[m
+[1m--- a/backend/modules/legal/app/auth/application/service/jwt.py[m
+[1m+++ b/backend/modules/legal/app/auth/application/service/jwt.py[m
+[36m@@ -1,7 +1,7 @@[m
+ from app.auth.application.dto import RefreshTokenResponseDTO[m
+ from app.auth.application.exception import DecodeTokenException[m
+ from app.auth.domain.usecase.jwt import JwtUseCase[m
+[31m-from core.helpers.token import ([m
+[32m+[m[32mfrom modules.shared.core.helpers.token import ([m
+     TokenHelper,[m
+     DecodeTokenException as JwtDecodeTokenException,[m
+     ExpiredTokenException as JwtExpiredTokenException,[m
+[1mdiff --git a/backend/modules/legal/app/server.py b/backend/modules/legal/app/server.py[m
+[1mindex 5782b7b..15d358b 100644[m
+[1m--- a/backend/modules/legal/app/server.py[m
+[1m+++ b/backend/modules/legal/app/server.py[m
+[36m@@ -6,16 +6,16 @@[m [mfrom fastapi.responses import JSONResponse[m
+ from app.auth.adapter.input.api import router as auth_router[m
+ from app.container import Container[m
+ from app.user.adapter.input.api import router as user_router[m
+[31m-from core.config import config[m
+[31m-from core.exceptions import CustomException[m
+[31m-from core.fastapi.dependencies import Logging[m
+[31m-from core.fastapi.middlewares import ([m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import Logging[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import ([m
+     AuthBackend,[m
+     AuthenticationMiddleware,[m
+     ResponseLogMiddleware,[m
+     SQLAlchemyMiddleware,[m
+ )[m
+[31m-from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache import Cache, CustomKeyMaker, RedisBackend[m
+ [m
+ [m
+ def init_routers(app_: FastAPI) -> None:[m
+[1mdiff --git a/backend/modules/legal/app/user/adapter/input/api/v1/user.py b/backend/modules/legal/app/user/adapter/input/api/v1/user.py[m
+[1mindex 9518145..3c8abce 100644[m
+[1m--- a/backend/modules/legal/app/user/adapter/input/api/v1/user.py[m
+[1m+++ b/backend/modules/legal/app/user/adapter/input/api/v1/user.py[m
+[36m@@ -7,7 +7,7 @@[m [mfrom app.user.adapter.input.api.v1.response import LoginResponse[m
+ from app.user.application.dto import CreateUserResponseDTO, GetUserListResponseDTO[m
+ from app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.usecase.user import UserUseCase[m
+[31m-from core.fastapi.dependencies import IsAdmin, PermissionDependency[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import IsAdmin, PermissionDependency[m
+ [m
+ user_router = APIRouter()[m
+ [m
+[1mdiff --git a/backend/modules/legal/app/user/adapter/output/persistence/sqlalchemy/user.py b/backend/modules/legal/app/user/adapter/output/persistence/sqlalchemy/user.py[m
+[1mindex dbf2b7e..d3738ec 100644[m
+[1m--- a/backend/modules/legal/app/user/adapter/output/persistence/sqlalchemy/user.py[m
+[1m+++ b/backend/modules/legal/app/user/adapter/output/persistence/sqlalchemy/user.py[m
+[36m@@ -2,7 +2,7 @@[m [mfrom sqlalchemy import and_, or_, select[m
+ [m
+ from app.user.domain.entity.user import User[m
+ from app.user.domain.repository.user import UserRepo[m
+[31m-from core.db.session import session, session_factory[m
+[32m+[m[32mfrom modules.shared.core.db.session import session, session_factory[m
+ [m
+ [m
+ class UserSQLAlchemyRepo(UserRepo):[m
+[1mdiff --git a/backend/modules/legal/app/user/application/exception/__init__.py b/backend/modules/legal/app/user/application/exception/__init__.py[m
+[1mindex 4d17f0f..110c889 100644[m
+[1m--- a/backend/modules/legal/app/user/application/exception/__init__.py[m
+[1m+++ b/backend/modules/legal/app/user/application/exception/__init__.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class PasswordDoesNotMatchException(CustomException):[m
+[1mdiff --git a/backend/modules/legal/app/user/application/service/user.py b/backend/modules/legal/app/user/application/service/user.py[m
+[1mindex 2f8f770..0f7cfbd 100644[m
+[1m--- a/backend/modules/legal/app/user/application/service/user.py[m
+[1m+++ b/backend/modules/legal/app/user/application/service/user.py[m
+[36m@@ -9,8 +9,8 @@[m [mfrom app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.entity.user import User, UserRead[m
+ from app.user.domain.usecase.user import UserUseCase[m
+ from app.user.domain.vo.location import Location[m
+[31m-from core.db import Transactional[m
+[31m-from core.helpers.token import TokenHelper[m
+[32m+[m[32mfrom modules.shared.core.db import Transactional[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper[m
+ [m
+ [m
+ class UserService(UserUseCase):[m
+[1mdiff --git a/backend/modules/legal/app/user/domain/entity/user.py b/backend/modules/legal/app/user/domain/entity/user.py[m
+[1mindex 2263087..86f47b6 100644[m
+[1m--- a/backend/modules/legal/app/user/domain/entity/user.py[m
+[1m+++ b/backend/modules/legal/app/user/domain/entity/user.py[m
+[36m@@ -3,8 +3,8 @@[m [mfrom sqlalchemy import String[m
+ from sqlalchemy.orm import Mapped, mapped_column, composite[m
+ [m
+ from app.user.domain.vo.location import Location[m
+[31m-from core.db import Base[m
+[31m-from core.db.mixins import TimestampMixin[m
+[32m+[m[32mfrom modules.shared.core.db import Base[m
+[32m+[m[32mfrom modules.shared.core.db.mixins import TimestampMixin[m
+ [m
+ [m
+ class User(Base, TimestampMixin):[m
+[1mdiff --git a/backend/modules/legal/celery_task/__init__.py b/backend/modules/legal/celery_task/__init__.py[m
+[1mindex 28423b7..2ae3d83 100644[m
+[1m--- a/backend/modules/legal/celery_task/__init__.py[m
+[1m+++ b/backend/modules/legal/celery_task/__init__.py[m
+[36m@@ -1,5 +1,5 @@[m
+ from celery import Celery[m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ [m
+ celery_app = Celery([m
+[1mdiff --git a/backend/modules/legal/migrations/env.py b/backend/modules/legal/migrations/env.py[m
+[1mindex 506a5ba..0ac0b64 100644[m
+[1m--- a/backend/modules/legal/migrations/env.py[m
+[1m+++ b/backend/modules/legal/migrations/env.py[m
+[36m@@ -25,8 +25,8 @@[m [mfileConfig(config.config_file_name)[m
+ # target_metadata = mymodel.Base.metadata[m
+ [m
+ # For auto generate schemas[m
+[31m-from core.config import config[m
+[31m-from core.db import Base[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.db import Base[m
+ [m
+ target_metadata = Base.metadata[m
+ [m
+[1mdiff --git a/backend/modules/legal/routers/auth/application/exception/__init__.py b/backend/modules/legal/routers/auth/application/exception/__init__.py[m
+[1mindex cf173f5..6f5d30a 100644[m
+[1m--- a/backend/modules/legal/routers/auth/application/exception/__init__.py[m
+[1m+++ b/backend/modules/legal/routers/auth/application/exception/__init__.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class DecodeTokenException(CustomException):[m
+[1mdiff --git a/backend/modules/legal/routers/auth/application/service/jwt.py b/backend/modules/legal/routers/auth/application/service/jwt.py[m
+[1mindex 73282fc..b1ab564 100644[m
+[1m--- a/backend/modules/legal/routers/auth/application/service/jwt.py[m
+[1m+++ b/backend/modules/legal/routers/auth/application/service/jwt.py[m
+[36m@@ -1,7 +1,7 @@[m
+ from app.auth.application.dto import RefreshTokenResponseDTO[m
+ from app.auth.application.exception import DecodeTokenException[m
+ from app.auth.domain.usecase.jwt import JwtUseCase[m
+[31m-from core.helpers.token import ([m
+[32m+[m[32mfrom modules.shared.core.helpers.token import ([m
+     TokenHelper,[m
+     DecodeTokenException as JwtDecodeTokenException,[m
+     ExpiredTokenException as JwtExpiredTokenException,[m
+[1mdiff --git a/backend/modules/legal/routers/server.py b/backend/modules/legal/routers/server.py[m
+[1mindex 5782b7b..15d358b 100644[m
+[1m--- a/backend/modules/legal/routers/server.py[m
+[1m+++ b/backend/modules/legal/routers/server.py[m
+[36m@@ -6,16 +6,16 @@[m [mfrom fastapi.responses import JSONResponse[m
+ from app.auth.adapter.input.api import router as auth_router[m
+ from app.container import Container[m
+ from app.user.adapter.input.api import router as user_router[m
+[31m-from core.config import config[m
+[31m-from core.exceptions import CustomException[m
+[31m-from core.fastapi.dependencies import Logging[m
+[31m-from core.fastapi.middlewares import ([m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import Logging[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import ([m
+     AuthBackend,[m
+     AuthenticationMiddleware,[m
+     ResponseLogMiddleware,[m
+     SQLAlchemyMiddleware,[m
+ )[m
+[31m-from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache import Cache, CustomKeyMaker, RedisBackend[m
+ [m
+ [m
+ def init_routers(app_: FastAPI) -> None:[m
+[1mdiff --git a/backend/modules/legal/routers/user/adapter/input/api/v1/user.py b/backend/modules/legal/routers/user/adapter/input/api/v1/user.py[m
+[1mindex 9518145..3c8abce 100644[m
+[1m--- a/backend/modules/legal/routers/user/adapter/input/api/v1/user.py[m
+[1m+++ b/backend/modules/legal/routers/user/adapter/input/api/v1/user.py[m
+[36m@@ -7,7 +7,7 @@[m [mfrom app.user.adapter.input.api.v1.response import LoginResponse[m
+ from app.user.application.dto import CreateUserResponseDTO, GetUserListResponseDTO[m
+ from app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.usecase.user import UserUseCase[m
+[31m-from core.fastapi.dependencies import IsAdmin, PermissionDependency[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import IsAdmin, PermissionDependency[m
+ [m
+ user_router = APIRouter()[m
+ [m
+[1mdiff --git a/backend/modules/legal/routers/user/adapter/output/persistence/sqlalchemy/user.py b/backend/modules/legal/routers/user/adapter/output/persistence/sqlalchemy/user.py[m
+[1mindex dbf2b7e..d3738ec 100644[m
+[1m--- a/backend/modules/legal/routers/user/adapter/output/persistence/sqlalchemy/user.py[m
+[1m+++ b/backend/modules/legal/routers/user/adapter/output/persistence/sqlalchemy/user.py[m
+[36m@@ -2,7 +2,7 @@[m [mfrom sqlalchemy import and_, or_, select[m
+ [m
+ from app.user.domain.entity.user import User[m
+ from app.user.domain.repository.user import UserRepo[m
+[31m-from core.db.session import session, session_factory[m
+[32m+[m[32mfrom modules.shared.core.db.session import session, session_factory[m
+ [m
+ [m
+ class UserSQLAlchemyRepo(UserRepo):[m
+[1mdiff --git a/backend/modules/legal/routers/user/application/exception/__init__.py b/backend/modules/legal/routers/user/application/exception/__init__.py[m
+[1mindex 4d17f0f..110c889 100644[m
+[1m--- a/backend/modules/legal/routers/user/application/exception/__init__.py[m
+[1m+++ b/backend/modules/legal/routers/user/application/exception/__init__.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class PasswordDoesNotMatchException(CustomException):[m
+[1mdiff --git a/backend/modules/legal/routers/user/application/service/user.py b/backend/modules/legal/routers/user/application/service/user.py[m
+[1mindex 2f8f770..0f7cfbd 100644[m
+[1m--- a/backend/modules/legal/routers/user/application/service/user.py[m
+[1m+++ b/backend/modules/legal/routers/user/application/service/user.py[m
+[36m@@ -9,8 +9,8 @@[m [mfrom app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.entity.user import User, UserRead[m
+ from app.user.domain.usecase.user import UserUseCase[m
+ from app.user.domain.vo.location import Location[m
+[31m-from core.db import Transactional[m
+[31m-from core.helpers.token import TokenHelper[m
+[32m+[m[32mfrom modules.shared.core.db import Transactional[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper[m
+ [m
+ [m
+ class UserService(UserUseCase):[m
+[1mdiff --git a/backend/modules/legal/routers/user/domain/entity/user.py b/backend/modules/legal/routers/user/domain/entity/user.py[m
+[1mindex 2263087..86f47b6 100644[m
+[1m--- a/backend/modules/legal/routers/user/domain/entity/user.py[m
+[1m+++ b/backend/modules/legal/routers/user/domain/entity/user.py[m
+[36m@@ -3,8 +3,8 @@[m [mfrom sqlalchemy import String[m
+ from sqlalchemy.orm import Mapped, mapped_column, composite[m
+ [m
+ from app.user.domain.vo.location import Location[m
+[31m-from core.db import Base[m
+[31m-from core.db.mixins import TimestampMixin[m
+[32m+[m[32mfrom modules.shared.core.db import Base[m
+[32m+[m[32mfrom modules.shared.core.db.mixins import TimestampMixin[m
+ [m
+ [m
+ class User(Base, TimestampMixin):[m
+[1mdiff --git a/backend/modules/legal/tests/app/user/application/service/test_user.py b/backend/modules/legal/tests/app/user/application/service/test_user.py[m
+[1mindex 4b77114..b9cc88f 100644[m
+[1m--- a/backend/modules/legal/tests/app/user/application/service/test_user.py[m
+[1m+++ b/backend/modules/legal/tests/app/user/application/service/test_user.py[m
+[36m@@ -11,7 +11,7 @@[m [mfrom app.user.application.exception import ([m
+ from app.user.application.service.user import UserService[m
+ from app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.entity.user import UserRead[m
+[31m-from core.helpers.token import TokenHelper[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper[m
+ from tests.support.user_fixture import make_user[m
+ [m
+ repository_mock = AsyncMock(spec=UserRepositoryAdapter)[m
+[1mdiff --git a/backend/modules/legal/tests/conftest.py b/backend/modules/legal/tests/conftest.py[m
+[1mindex a0d0a23..0626522 100644[m
+[1m--- a/backend/modules/legal/tests/conftest.py[m
+[1m+++ b/backend/modules/legal/tests/conftest.py[m
+[36m@@ -4,7 +4,7 @@[m [mfrom uuid import uuid4[m
+ import pytest[m
+ import pytest_asyncio[m
+ [m
+[31m-from core.db.session import ([m
+[32m+[m[32mfrom modules.shared.core.db.session import ([m
+     set_session_context,[m
+     reset_session_context,[m
+     session as db_session,[m
+[1mdiff --git a/backend/modules/legal/tests/core/exceptions/test_base.py b/backend/modules/legal/tests/core/exceptions/test_base.py[m
+[1mindex 3eca52d..4ac22e9 100644[m
+[1m--- a/backend/modules/legal/tests/core/exceptions/test_base.py[m
+[1m+++ b/backend/modules/legal/tests/core/exceptions/test_base.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ def test_custom_exception():[m
+[1mdiff --git a/backend/modules/legal/tests/core/fastapi/dependencies/test_permission.py b/backend/modules/legal/tests/core/fastapi/dependencies/test_permission.py[m
+[1mindex 142986a..d723701 100644[m
+[1m--- a/backend/modules/legal/tests/core/fastapi/dependencies/test_permission.py[m
+[1m+++ b/backend/modules/legal/tests/core/fastapi/dependencies/test_permission.py[m
+[36m@@ -4,13 +4,13 @@[m [mimport pytest[m
+ from fastapi import Request[m
+ [m
+ from app.container import Container[m
+[31m-from core.fastapi.dependencies import ([m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import ([m
+     AllowAll,[m
+     IsAdmin,[m
+     IsAuthenticated,[m
+     PermissionDependency,[m
+ )[m
+[31m-from core.fastapi.dependencies.permission import UnauthorizedException[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies.permission import UnauthorizedException[m
+ [m
+ container = Container()[m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/core/fastapi/middlewares/test_authentication.py b/backend/modules/legal/tests/core/fastapi/middlewares/test_authentication.py[m
+[1mindex c6e147c..7ac5b08 100644[m
+[1m--- a/backend/modules/legal/tests/core/fastapi/middlewares/test_authentication.py[m
+[1m+++ b/backend/modules/legal/tests/core/fastapi/middlewares/test_authentication.py[m
+[36m@@ -4,8 +4,8 @@[m [mfrom unittest.mock import Mock, patch[m
+ import pytest[m
+ from jwt.exceptions import PyJWTError[m
+ [m
+[31m-from core.fastapi.middlewares import authentication[m
+[31m-from core.fastapi.middlewares.authentication import AuthBackend, CurrentUser[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import authentication[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares.authentication import AuthBackend, CurrentUser[m
+ [m
+ auth_backend = AuthBackend()[m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/core/fastapi/middlewares/test_sqlalchemy.py b/backend/modules/legal/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[1mindex d68bbc6..87a7c60 100644[m
+[1m--- a/backend/modules/legal/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[1m+++ b/backend/modules/legal/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[36m@@ -4,8 +4,8 @@[m [mfrom unittest.mock import patch[m
+ [m
+ from sqlalchemy.ext.asyncio import async_scoped_session[m
+ [m
+[31m-from core.fastapi.middlewares import SQLAlchemyMiddleware[m
+[31m-from core.fastapi.middlewares import sqlalchemy[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import SQLAlchemyMiddleware[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import sqlalchemy[m
+ from starlette.types import Receive, Scope, Send[m
+ [m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/core/helpers/cache/test_custom_key_maker.py b/backend/modules/legal/tests/core/helpers/cache/test_custom_key_maker.py[m
+[1mindex 6c56922..4766986 100644[m
+[1m--- a/backend/modules/legal/tests/core/helpers/cache/test_custom_key_maker.py[m
+[1m+++ b/backend/modules/legal/tests/core/helpers/cache/test_custom_key_maker.py[m
+[36m@@ -1,6 +1,6 @@[m
+ import pytest[m
+ [m
+[31m-from core.helpers.cache.custom_key_maker import CustomKeyMaker[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.custom_key_maker import CustomKeyMaker[m
+ [m
+ key_maker = CustomKeyMaker()[m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/core/helpers/cache/test_redis_backend.py b/backend/modules/legal/tests/core/helpers/cache/test_redis_backend.py[m
+[1mindex c009101..74bd2c5 100644[m
+[1m--- a/backend/modules/legal/tests/core/helpers/cache/test_redis_backend.py[m
+[1m+++ b/backend/modules/legal/tests/core/helpers/cache/test_redis_backend.py[m
+[36m@@ -1,7 +1,7 @@[m
+ import pytest[m
+ [m
+[31m-from core.helpers.cache.redis_backend import RedisBackend[m
+[31m-from core.helpers.redis import redis_client[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.redis_backend import RedisBackend[m
+[32m+[m[32mfrom modules.shared.core.helpers.redis import redis_client[m
+ [m
+ redis_backend = RedisBackend()[m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/core/helpers/test_token.py b/backend/modules/legal/tests/core/helpers/test_token.py[m
+[1mindex 09f5c4d..b63babf 100644[m
+[1m--- a/backend/modules/legal/tests/core/helpers/test_token.py[m
+[1m+++ b/backend/modules/legal/tests/core/helpers/test_token.py[m
+[36m@@ -3,8 +3,8 @@[m [mfrom typing import Any[m
+ import jwt[m
+ import pytest[m
+ [m
+[31m-from core.config import config[m
+[31m-from core.helpers.token import TokenHelper, DecodeTokenException, ExpiredTokenException[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper, DecodeTokenException, ExpiredTokenException[m
+ from tests.support.token import EXPIRED_TOKEN[m
+ [m
+ [m
+[1mdiff --git a/backend/modules/legal/tests/support/test_db_coordinator.py b/backend/modules/legal/tests/support/test_db_coordinator.py[m
+[1mindex 066c773..6d126ba 100644[m
+[1m--- a/backend/modules/legal/tests/support/test_db_coordinator.py[m
+[1m+++ b/backend/modules/legal/tests/support/test_db_coordinator.py[m
+[36m@@ -2,7 +2,7 @@[m [mfrom alembic import command[m
+ from alembic.config import Config as AlembicConfig[m
+ from sqlalchemy import create_engine, inspect, Engine, text[m
+ [m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ [m
+ class TestDbCoordinator:[m
+[1mdiff --git a/backend/modules/shared/core/db/transactional.py b/backend/modules/shared/core/db/transactional.py[m
+[1mindex 9aaa294..6c530f1 100644[m
+[1m--- a/backend/modules/shared/core/db/transactional.py[m
+[1m+++ b/backend/modules/shared/core/db/transactional.py[m
+[36m@@ -1,6 +1,6 @@[m
+ from functools import wraps[m
+ [m
+[31m-from core.db import session[m
+[32m+[m[32mfrom modules.shared.core.db.session import session[m
+ [m
+ [m
+ class Transactional:[m
+[1mdiff --git a/backend/modules/shared/core/fastapi/dependencies/permission.py b/backend/modules/shared/core/fastapi/dependencies/permission.py[m
+[1mindex f7d3ba1..c90eb65 100644[m
+[1m--- a/backend/modules/shared/core/fastapi/dependencies/permission.py[m
+[1m+++ b/backend/modules/shared/core/fastapi/dependencies/permission.py[m
+[36m@@ -9,7 +9,7 @@[m [mfrom starlette import status[m
+ [m
+ from app.container import Container[m
+ from app.user.domain.usecase.user import UserUseCase[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class UnauthorizedException(CustomException):[m
+[1mdiff --git a/backend/modules/shared/core/fastapi/middlewares/authentication.py b/backend/modules/shared/core/fastapi/middlewares/authentication.py[m
+[1mindex 48f23a4..1799fab 100644[m
+[1m--- a/backend/modules/shared/core/fastapi/middlewares/authentication.py[m
+[1m+++ b/backend/modules/shared/core/fastapi/middlewares/authentication.py[m
+[36m@@ -6,7 +6,7 @@[m [mfrom starlette.middleware.authentication import ([m
+ )[m
+ from starlette.requests import HTTPConnection[m
+ [m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ [m
+ class CurrentUser(BaseModel):[m
+[1mdiff --git a/backend/modules/shared/core/fastapi/middlewares/sqlalchemy.py b/backend/modules/shared/core/fastapi/middlewares/sqlalchemy.py[m
+[1mindex 4fc11c3..13e8fce 100644[m
+[1m--- a/backend/modules/shared/core/fastapi/middlewares/sqlalchemy.py[m
+[1m+++ b/backend/modules/shared/core/fastapi/middlewares/sqlalchemy.py[m
+[36m@@ -2,7 +2,7 @@[m [mfrom uuid import uuid4[m
+ [m
+ from starlette.types import ASGIApp, Receive, Scope, Send[m
+ [m
+[31m-from core.db.session import set_session_context, reset_session_context, session[m
+[32m+[m[32mfrom modules.shared.core.db.session import set_session_context, reset_session_context, session[m
+ [m
+ [m
+ class SQLAlchemyMiddleware:[m
+[1mdiff --git a/backend/modules/shared/core/helpers/cache/custom_key_maker.py b/backend/modules/shared/core/helpers/cache/custom_key_maker.py[m
+[1mindex 0b1805f..d27b019 100644[m
+[1m--- a/backend/modules/shared/core/helpers/cache/custom_key_maker.py[m
+[1m+++ b/backend/modules/shared/core/helpers/cache/custom_key_maker.py[m
+[36m@@ -1,7 +1,7 @@[m
+ import inspect[m
+ from typing import Callable[m
+ [m
+[31m-from core.helpers.cache.base import BaseKeyMaker[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.base import BaseKeyMaker[m
+ [m
+ [m
+ class CustomKeyMaker(BaseKeyMaker):[m
+[1mdiff --git a/backend/modules/shared/core/helpers/cache/redis_backend.py b/backend/modules/shared/core/helpers/cache/redis_backend.py[m
+[1mindex cbc73ab..befe287 100644[m
+[1m--- a/backend/modules/shared/core/helpers/cache/redis_backend.py[m
+[1m+++ b/backend/modules/shared/core/helpers/cache/redis_backend.py[m
+[36m@@ -3,8 +3,8 @@[m [mfrom typing import Any[m
+ [m
+ import ujson[m
+ [m
+[31m-from core.helpers.cache.base import BaseBackend[m
+[31m-from core.helpers.redis import redis_client[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.base import BaseBackend[m
+[32m+[m[32mfrom modules.shared.core.helpers.redis import redis_client[m
+ [m
+ [m
+ class RedisBackend(BaseBackend):[m
+[1mdiff --git a/backend/modules/shared/core/helpers/redis.py b/backend/modules/shared/core/helpers/redis.py[m
+[1mindex dc76165..a773124 100644[m
+[1m--- a/backend/modules/shared/core/helpers/redis.py[m
+[1m+++ b/backend/modules/shared/core/helpers/redis.py[m
+[36m@@ -1,5 +1,5 @@[m
+ from redis import asyncio as redis[m
+ [m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ redis_client = redis.from_url(url=f"redis://{config.REDIS_HOST}", decode_responses=True)[m
+[1mdiff --git a/backend/modules/shared/core/helpers/token.py b/backend/modules/shared/core/helpers/token.py[m
+[1mindex bfbeb00..167774e 100644[m
+[1m--- a/backend/modules/shared/core/helpers/token.py[m
+[1m+++ b/backend/modules/shared/core/helpers/token.py[m
+[36m@@ -2,8 +2,8 @@[m [mfrom datetime import datetime, timedelta[m
+ [m
+ import jwt[m
+ [m
+[31m-from core.config import config[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ class DecodeTokenException(CustomException):[m
+[1mdiff --git a/backend/modules/shared/core/repository/base.py b/backend/modules/shared/core/repository/base.py[m
+[1mindex 687bda6..a01c508 100644[m
+[1m--- a/backend/modules/shared/core/repository/base.py[m
+[1m+++ b/backend/modules/shared/core/repository/base.py[m
+[36m@@ -2,8 +2,8 @@[m [mfrom typing import TypeVar, Type, Generic[m
+ [m
+ from sqlalchemy import select, update, delete[m
+ [m
+[31m-from core.db.session import Base, session[m
+[31m-from core.repository.enum import SynchronizeSessionEnum[m
+[32m+[m[32mfrom modules.shared.core.db.session import Base, session[m
+[32m+[m[32mfrom modules.shared.core.repository.enum import SynchronizeSessionEnum[m
+ [m
+ ModelType = TypeVar("ModelType", bound=Base)[m
+ [m
+[1mdiff --git a/backend/test_db.py b/backend/test_db.py[m
+[1mindex 4d67ee9..8bc3e68 100644[m
+[1m--- a/backend/test_db.py[m
+[1m+++ b/backend/test_db.py[m
+[36m@@ -1,6 +1,6 @@[m
+ import asyncio[m
+ from sqlalchemy.ext.asyncio import create_async_engine[m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ engine = create_async_engine(config.DATABASE_URL, echo=True)[m
+ [m
+[1mdiff --git a/backend/tests/app/user/application/service/test_user.py b/backend/tests/app/user/application/service/test_user.py[m
+[1mindex 4b77114..b9cc88f 100644[m
+[1m--- a/backend/tests/app/user/application/service/test_user.py[m
+[1m+++ b/backend/tests/app/user/application/service/test_user.py[m
+[36m@@ -11,7 +11,7 @@[m [mfrom app.user.application.exception import ([m
+ from app.user.application.service.user import UserService[m
+ from app.user.domain.command import CreateUserCommand[m
+ from app.user.domain.entity.user import UserRead[m
+[31m-from core.helpers.token import TokenHelper[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper[m
+ from tests.support.user_fixture import make_user[m
+ [m
+ repository_mock = AsyncMock(spec=UserRepositoryAdapter)[m
+[1mdiff --git a/backend/tests/conftest.py b/backend/tests/conftest.py[m
+[1mindex 0626522..cece9e3 100644[m
+[1m--- a/backend/tests/conftest.py[m
+[1m+++ b/backend/tests/conftest.py[m
+[36m@@ -9,6 +9,7 @@[m [mfrom modules.shared.core.db.session import ([m
+     reset_session_context,[m
+     session as db_session,[m
+ )[m
+[32m+[m
+ from tests.support.test_db_coordinator import TestDbCoordinator[m
+ [m
+ test_db_coordinator = TestDbCoordinator()[m
+[36m@@ -35,3 +36,4 @@[m [masync def session():[m
+     yield db_session[m
+     await db_session.remove()[m
+     test_db_coordinator.truncate_all()[m
+[41m+[m
+[1mdiff --git a/backend/tests/core/exceptions/test_base.py b/backend/tests/core/exceptions/test_base.py[m
+[1mindex 3eca52d..4ac22e9 100644[m
+[1m--- a/backend/tests/core/exceptions/test_base.py[m
+[1m+++ b/backend/tests/core/exceptions/test_base.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-from core.exceptions import CustomException[m
+[32m+[m[32mfrom modules.shared.core.exceptions import CustomException[m
+ [m
+ [m
+ def test_custom_exception():[m
+[1mdiff --git a/backend/tests/core/fastapi/dependencies/test_permission.py b/backend/tests/core/fastapi/dependencies/test_permission.py[m
+[1mindex 142986a..d723701 100644[m
+[1m--- a/backend/tests/core/fastapi/dependencies/test_permission.py[m
+[1m+++ b/backend/tests/core/fastapi/dependencies/test_permission.py[m
+[36m@@ -4,13 +4,13 @@[m [mimport pytest[m
+ from fastapi import Request[m
+ [m
+ from app.container import Container[m
+[31m-from core.fastapi.dependencies import ([m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies import ([m
+     AllowAll,[m
+     IsAdmin,[m
+     IsAuthenticated,[m
+     PermissionDependency,[m
+ )[m
+[31m-from core.fastapi.dependencies.permission import UnauthorizedException[m
+[32m+[m[32mfrom modules.shared.core.fastapi.dependencies.permission import UnauthorizedException[m
+ [m
+ container = Container()[m
+ [m
+[1mdiff --git a/backend/tests/core/fastapi/middlewares/test_authentication.py b/backend/tests/core/fastapi/middlewares/test_authentication.py[m
+[1mindex c6e147c..7ac5b08 100644[m
+[1m--- a/backend/tests/core/fastapi/middlewares/test_authentication.py[m
+[1m+++ b/backend/tests/core/fastapi/middlewares/test_authentication.py[m
+[36m@@ -4,8 +4,8 @@[m [mfrom unittest.mock import Mock, patch[m
+ import pytest[m
+ from jwt.exceptions import PyJWTError[m
+ [m
+[31m-from core.fastapi.middlewares import authentication[m
+[31m-from core.fastapi.middlewares.authentication import AuthBackend, CurrentUser[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import authentication[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares.authentication import AuthBackend, CurrentUser[m
+ [m
+ auth_backend = AuthBackend()[m
+ [m
+[1mdiff --git a/backend/tests/core/fastapi/middlewares/test_sqlalchemy.py b/backend/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[1mindex d68bbc6..87a7c60 100644[m
+[1m--- a/backend/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[1m+++ b/backend/tests/core/fastapi/middlewares/test_sqlalchemy.py[m
+[36m@@ -4,8 +4,8 @@[m [mfrom unittest.mock import patch[m
+ [m
+ from sqlalchemy.ext.asyncio import async_scoped_session[m
+ [m
+[31m-from core.fastapi.middlewares import SQLAlchemyMiddleware[m
+[31m-from core.fastapi.middlewares import sqlalchemy[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import SQLAlchemyMiddleware[m
+[32m+[m[32mfrom modules.shared.core.fastapi.middlewares import sqlalchemy[m
+ from starlette.types import Receive, Scope, Send[m
+ [m
+ [m
+[1mdiff --git a/backend/tests/core/helpers/cache/test_custom_key_maker.py b/backend/tests/core/helpers/cache/test_custom_key_maker.py[m
+[1mindex 6c56922..4766986 100644[m
+[1m--- a/backend/tests/core/helpers/cache/test_custom_key_maker.py[m
+[1m+++ b/backend/tests/core/helpers/cache/test_custom_key_maker.py[m
+[36m@@ -1,6 +1,6 @@[m
+ import pytest[m
+ [m
+[31m-from core.helpers.cache.custom_key_maker import CustomKeyMaker[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.custom_key_maker import CustomKeyMaker[m
+ [m
+ key_maker = CustomKeyMaker()[m
+ [m
+[1mdiff --git a/backend/tests/core/helpers/cache/test_redis_backend.py b/backend/tests/core/helpers/cache/test_redis_backend.py[m
+[1mindex c009101..74bd2c5 100644[m
+[1m--- a/backend/tests/core/helpers/cache/test_redis_backend.py[m
+[1m+++ b/backend/tests/core/helpers/cache/test_redis_backend.py[m
+[36m@@ -1,7 +1,7 @@[m
+ import pytest[m
+ [m
+[31m-from core.helpers.cache.redis_backend import RedisBackend[m
+[31m-from core.helpers.redis import redis_client[m
+[32m+[m[32mfrom modules.shared.core.helpers.cache.redis_backend import RedisBackend[m
+[32m+[m[32mfrom modules.shared.core.helpers.redis import redis_client[m
+ [m
+ redis_backend = RedisBackend()[m
+ [m
+[1mdiff --git a/backend/tests/core/helpers/test_token.py b/backend/tests/core/helpers/test_token.py[m
+[1mindex 09f5c4d..b63babf 100644[m
+[1m--- a/backend/tests/core/helpers/test_token.py[m
+[1m+++ b/backend/tests/core/helpers/test_token.py[m
+[36m@@ -3,8 +3,8 @@[m [mfrom typing import Any[m
+ import jwt[m
+ import pytest[m
+ [m
+[31m-from core.config import config[m
+[31m-from core.helpers.token import TokenHelper, DecodeTokenException, ExpiredTokenException[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+[32m+[m[32mfrom modules.shared.core.helpers.token import TokenHelper, DecodeTokenException, ExpiredTokenException[m
+ from tests.support.token import EXPIRED_TOKEN[m
+ [m
+ [m
+[1mdiff --git a/backend/tests/support/test_db_coordinator.py b/backend/tests/support/test_db_coordinator.py[m
+[1mindex 066c773..6d126ba 100644[m
+[1m--- a/backend/tests/support/test_db_coordinator.py[m
+[1m+++ b/backend/tests/support/test_db_coordinator.py[m
+[36m@@ -2,7 +2,7 @@[m [mfrom alembic import command[m
+ from alembic.config import Config as AlembicConfig[m
+ from sqlalchemy import create_engine, inspect, Engine, text[m
+ [m
+[31m-from core.config import config[m
+[32m+[m[32mfrom modules.shared.core.config import config[m
+ [m
+ [m
+ class TestDbCoordinator:[m

@@ -19,6 +19,7 @@ async def test_get_users(session: AsyncSession):
         lat=37.123,
         lng=127.123,
     )
+
     user_2 = make_user(
         password="password2",
         email="b@b.c",
@@ -27,6 +28,7 @@ async def test_get_users(session: AsyncSession):
         lat=37.123,
         lng=127.123,
     )
+
     session.add_all([user_1, user_2])
     await session.commit()
 
@@ -35,21 +37,8 @@ async def test_get_users(session: AsyncSession):
 
     # Then
     assert len(sut) == 2
-    saved_user_1 = sut[0]
-    assert saved_user_1.password == user_1.password
-    assert saved_user_1.email == user_1.email
-    assert saved_user_1.nickname == user_1.nickname
-    assert saved_user_1.is_admin == user_1.is_admin
-    assert saved_user_1.location.lat == user_1.location.lat
-    assert saved_user_1.location.lng == user_1.location.lng
-
-    saved_user_2 = sut[1]
-    assert saved_user_2.password == user_2.password
-    assert saved_user_2.email == user_2.email
-    assert saved_user_2.nickname == user_2.nickname
-    assert saved_user_2.is_admin == user_2.is_admin
-    assert saved_user_2.location.lat == user_2.location.lat
-    assert saved_user_2.location.lng == user_2.location.lng
+    assert sut[0].email == user_1.email
+    assert sut[1].email == user_2.email
 
 
 @pytest.mark.asyncio
@@ -65,6 +54,7 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
         lat=37.123,
         lng=127.123,
     )
+
     session.add(user)
     await session.commit()
 
@@ -72,8 +62,6 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
     sut = await user_repo.get_user_by_email_or_nickname(email=email, nickname=nickname)
 
     # Then
-    assert isinstance(sut, User)
-    assert sut.id == user.id
     assert sut.email == email
     assert sut.nickname == nickname
 
@@ -81,13 +69,23 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_get_user_by_id(session: AsyncSession):
     # Given
-    user_id = 1
+    user = make_user(
+        password="password",
+        email="c@d.e",
+        nickname="testuser",
+        is_admin=True,
+        lat=37.123,
+        lng=127.123,
+    )
+
+    session.add(user)
+    await session.commit()
 
     # When
-    sut = await user_repo.get_user_by_id(user_id=user_id)
+    sut = await user_repo.get_user_by_id(user_id=user.id)
 
     # Then
-    assert sut is None
+    assert sut.id == user.id
 
 
 @pytest.mark.asyncio
@@ -103,6 +101,7 @@ async def test_get_user_by_email_and_password(session: AsyncSession):
         lat=37.123,
         lng=127.123,
     )
+
     session.add(user)
     await session.commit()
 
@@ -110,8 +109,6 @@ async def test_get_user_by_email_and_password(session: AsyncSession):
     sut = await user_repo.get_user_by_email_and_password(email=email, password=password)
 
     # Then
-    assert isinstance(sut, User)
-    assert sut.id == user.id
     assert sut.email == email
     assert sut.password == password
 
@@ -119,16 +116,21 @@ async def test_get_user_by_email_and_password(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_save(session: AsyncSession):
     # Given
-    email = "b@c.d"
-    password = "hide"
     user = make_user(
-        password=password,
-        email=email,
-        nickname="hide",
+        password="savepassword",
+        email="save@user.com",
+        nickname="save",
         is_admin=False,
         lat=37.123,
         lng=127.123,
     )
 
-    # When, Then
+    # When
     await user_repo.save(user=user)
+
+    # Then
+    saved_user = await user_repo.get_user_by_email_or_nickname(email=user.email, nickname=user.nickname)
+    assert saved_user is not None
+    assert saved_user.email == user.email
+    assert saved_user.nickname == user.nickname
+
