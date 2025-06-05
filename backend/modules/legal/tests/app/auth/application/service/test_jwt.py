@@ -1,6 +1,6 @@
 import pytest
 
-from app.auth.application.service.jwt import JwtService, DecodeTokenException
+from modules.legal.app.auth.application.service.jwt import JwtService, DecodeTokenException
 from tests.support.token import INVALID_REFRESH_TOKEN, USER_ID_1_TOKEN
 
 jwt_service = JwtService()

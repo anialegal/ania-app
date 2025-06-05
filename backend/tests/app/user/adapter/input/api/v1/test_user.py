@@ -2,9 +2,9 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.server import app
-from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
-from app.user.application.exception import (
+from modules.legal.app.server import app
+from modules.legal.app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
+from modules.legal.app.user.application.exception import (
     PasswordDoesNotMatchException,
     DuplicateEmailOrNicknameException,
     UserNotFoundException,

@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
-from app.user.domain.entity.user import User
+from modules.legal.app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
+from modules.legal.app.user.domain.entity.user import User
 from tests.support.user_fixture import make_user
 
 user_repo = UserSQLAlchemyRepo()

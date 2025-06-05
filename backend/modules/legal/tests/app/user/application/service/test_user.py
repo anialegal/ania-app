@@ -2,15 +2,15 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
-from app.user.application.exception import (
+from modules.legal.app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
+from modules.legal.app.user.application.exception import (
     DuplicateEmailOrNicknameException,
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
-from app.user.application.service.user import UserService
-from app.user.domain.command import CreateUserCommand
-from app.user.domain.entity.user import UserRead
+from modules.legal.app.user.application.service.user import UserService
+from modules.legal.app.user.domain.command import CreateUserCommand
+from modules.legal.app.user.domain.entity.user import UserRead
 from modules.shared.core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user
 

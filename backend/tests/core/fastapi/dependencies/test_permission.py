@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import Request
 
-from app.container import Container
+from modules.legal.app.container import Container
 from modules.shared.core.fastapi.dependencies import (
     AllowAll,
     IsAdmin,

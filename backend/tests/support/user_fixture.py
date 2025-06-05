@@ -1,5 +1,5 @@
-from app.user.domain.entity.user import User
-from app.user.domain.vo.location import Location
+from modules.legal.app.user.domain.entity.user import User
+from modules.legal.app.user.domain.vo.location import Location
 
 
 def make_user(
