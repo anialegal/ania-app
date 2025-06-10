@@ -15,7 +15,6 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "3.12.3"
-alembic = "^1.13.1"
 uvicorn = "^0.25.0"
 fastapi = "^0.109.0"
 celery = "^5.3.6"
@@ -36,6 +35,8 @@ pymysql = "^1.1.0"
 dependency-injector = "^4.41.0"
 httpx = "^0.26.0"
 asyncpg = "^0.30.0"
+alembic = "^1.16.1"
+psycopg2-binary = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

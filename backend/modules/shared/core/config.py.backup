@@ -2,18 +2,19 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    ENV: str = "empresa"  # Valor por defecto
-    SECRET_KEY: str = "default-secret-key"  # ✅ Añadido
-    
-    DATABASE_URL_EMPRESA: str = "postgresql+asyncpg://ania_user:Anialega125!@ania-db-empresa-prod.cnksmeq80uqz.eu-west-2.rds.amazonaws.com:5432/ania_empresa"
-    
-    DATABASE_URL_LEGAL: str = "postgresql+asyncpg://ania_user:Anialega125!@ania-db-legal-dev.cnksmeq80uqz.eu-west-2.rds.amazonaws.com:5432/ania_legal_dev"
-    
-    REDIS_HOST: str = "localhost"
-    
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    ENV: str = os.getenv("ENV", "empresa")
+
+    DATABASE_URL_EMPRESA: str = os.getenv(
+        "DATABASE_URL_EMPRESA",
+        "postgresql+asyncpg://ania_user:Anialega125!@ania-db-empresa-prod.cnksmeq80uqz.eu-west-2.rds.amazonaws.com:5432/ania_empresa",
+    )
+
+    DATABASE_URL_LEGAL: str = os.getenv(
+        "DATABASE_URL_LEGAL",
+        "postgresql+asyncpg://ania_user:Anialega125!@ania-db-legal-dev.cnksmeq80uqz.eu-west-2.rds.amazonaws.com:5432/ania_legal_dev",
+    )
+
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
 
     @property
     def WRITER_DB_URL(self):
@@ -33,4 +34,6 @@ class Settings(BaseSettings):
         else:
             raise ValueError("Entorno no reconocido")
 
+
 config = Settings()
+
